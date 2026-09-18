@@ -22,3 +22,13 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# ── Secret / environment files ───────────────────────────────────────────────
+# NEVER commit real API keys. Add your GEMINI_API_KEY to .env.local only.
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+# .env.example is intentionally NOT ignored — it contains no real secrets.
