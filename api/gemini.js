@@ -56,17 +56,32 @@ export default async function handler(req, res) {
     return;
   }
 
-  // Parse body
-  let body;
-  try {
-    body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-  } catch {
-    res.writeHead(400, { ...CORS_HEADERS, 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ error: 'Invalid JSON body.' }));
-    return;
+  // Parse body (handles pre-parsed Vercel body or unbuffered Node stream)
+  let body = req.body;
+  if (body === undefined) {
+    try {
+      const chunks = [];
+      for await (const chunk of req) {
+        chunks.push(chunk);
+      }
+      const rawText = Buffer.concat(chunks).toString('utf8');
+      body = rawText ? JSON.parse(rawText) : {};
+    } catch {
+      res.writeHead(400, { ...CORS_HEADERS, 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Failed to parse JSON body from request stream.' }));
+      return;
+    }
+  } else if (typeof body === 'string') {
+    try {
+      body = JSON.parse(body);
+    } catch {
+      res.writeHead(400, { ...CORS_HEADERS, 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Invalid JSON body string.' }));
+      return;
+    }
   }
 
-  const { prompt, systemInstruction } = body || {};
+  const { prompt, systemInstruction, responseMimeType } = body || {};
 
   if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
     res.writeHead(400, { ...CORS_HEADERS, 'Content-Type': 'application/json' });
@@ -78,9 +93,9 @@ export default async function handler(req, res) {
   try {
     const ai = new GoogleGenAI({ apiKey });
 
-    const config = systemInstruction
-      ? { systemInstruction }
-      : {};
+    const config = {};
+    if (systemInstruction) config.systemInstruction = systemInstruction;
+    if (responseMimeType) config.responseMimeType = responseMimeType;
 
     const response = await ai.models.generateContent({
       model: MODEL_NAME,

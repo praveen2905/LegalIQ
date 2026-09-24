@@ -24,7 +24,9 @@
  * Throws an Error with a human-readable message on any failure.
  */
 
-const GEMINI_ENDPOINT = '/api/gemini';
+const GEMINI_ENDPOINT = typeof window !== 'undefined'
+  ? '/api/gemini'
+  : (process.env.TEST_API_URL || 'http://localhost:5173/api/gemini');
 
 /**
  * Send a prompt to Gemini via the server-side API endpoint.
@@ -32,9 +34,10 @@ const GEMINI_ENDPOINT = '/api/gemini';
  * @param {object} options
  * @param {string} options.prompt            - The prompt text (required)
  * @param {string} [options.systemInstruction] - Optional system instruction
+ * @param {string} [options.responseMimeType]   - Optional response MIME type (e.g. 'application/json')
  * @returns {Promise<{ text: string }>}
  */
-export async function askGemini({ prompt, systemInstruction }) {
+export async function askGemini({ prompt, systemInstruction, responseMimeType }) {
   if (!prompt || typeof prompt !== 'string' || !prompt.trim()) {
     throw new Error('askGemini: prompt is required and must be a non-empty string.');
   }
@@ -42,6 +45,9 @@ export async function askGemini({ prompt, systemInstruction }) {
   const payload = { prompt: prompt.trim() };
   if (systemInstruction) {
     payload.systemInstruction = systemInstruction;
+  }
+  if (responseMimeType) {
+    payload.responseMimeType = responseMimeType;
   }
 
   let res;

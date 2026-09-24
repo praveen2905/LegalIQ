@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import { SAMPLE_DOCUMENTS, SAMPLE_COMPARISONS, INITIAL_HISTORY } from '../data/mockLegalData';
+import { extractTextFromFile } from '../utils/documentExtractor';
+import { analyzeDocumentWithGemini } from '../utils/geminiAnalyzer';
 
 const AppContext = createContext(null);
 
@@ -58,13 +60,13 @@ export function AppProvider({ children }) {
     }, 1800);
   };
 
-  // Action: File upload simulation with validation
-  const uploadAndAnalyzeFile = (file) => {
+  // Action: File upload with real text extraction and dynamic legal analysis
+  const uploadAndAnalyzeFile = async (file) => {
     setUploadError(null);
 
-    // Validation 1: File format (PDF or DOCX only)
+    // Validation 1: File format (PDF, DOCX, DOC, or TXT)
     const fileName = file.name.toLowerCase();
-    const isValidFormat = fileName.endsWith('.pdf') || fileName.endsWith('.docx') || fileName.endsWith('.doc');
+    const isValidFormat = fileName.endsWith('.pdf') || fileName.endsWith('.docx') || fileName.endsWith('.doc') || fileName.endsWith('.txt');
     
     // Validation 2: Max size 10 MB (10 * 1024 * 1024 bytes)
     const MAX_SIZE = 10 * 1024 * 1024;
@@ -75,39 +77,44 @@ export function AppProvider({ children }) {
       return false;
     }
 
-    // Start simulated analysis pipeline
+    // Start real analysis pipeline
     setIsAnalyzing(true);
-    setAnalysisProgress('Uploading document...');
+    setAnalysisProgress('Reading and extracting document text...');
 
-    setTimeout(() => {
-      setAnalysisProgress('Finding important clauses...');
-    }, 800);
+    try {
+      // 1. Extract actual text from file
+      const extracted = await extractTextFromFile(file);
 
-    setTimeout(() => {
-      setAnalysisProgress('Preparing your summary...');
-    }, 1600);
+      // 2. Gemini GenAI analysis stage
+      setAnalysisProgress('Sending document securely to Gemini AI...');
+      await new Promise(resolve => setTimeout(resolve, 300));
 
-    setTimeout(() => {
-      // Create new analyzed document from template data
-      const newDocId = `doc-upload-${Date.now()}`;
-      const newDoc = {
-        ...SAMPLE_DOCUMENTS[0],
-        id: newDocId,
-        title: file.name.replace(/\.[^/.]+$/, ""),
-        filename: file.name,
-        fileSize: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
-        lastAnalyzed: 'Just now',
-        uploadDate: new Date().toISOString().split('T')[0]
-      };
+      // Format file size string
+      const formattedSize = file.size >= 1024 * 1024
+        ? `${(file.size / (1024 * 1024)).toFixed(1)} MB`
+        : `${Math.round(file.size / 1024)} KB`;
 
-      // Add to documents and set as selected
+      setAnalysisProgress('Gemini is analyzing document clauses & detecting risks...');
+
+      // 3. Call Gemini backend for grounded analysis
+      const newDoc = await analyzeDocumentWithGemini({
+        text: extracted.text,
+        fileName: file.name,
+        fileSize: formattedSize,
+        pageCount: extracted.pageCount
+      });
+
+      setAnalysisProgress('Finalizing plain-language summary & insights...');
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // 4. Add to documents list and select it
       setDocuments(prev => [newDoc, ...prev]);
-      setSelectedDocId(newDocId);
+      setSelectedDocId(newDoc.id);
 
-      // Add to history ledger
+      // 5. Record in analysis history
       const newHistoryItem = {
         id: `hist-${Date.now()}`,
-        documentId: newDocId,
+        documentId: newDoc.id,
         title: newDoc.title,
         filename: file.name,
         type: newDoc.type,
@@ -122,12 +129,17 @@ export function AppProvider({ children }) {
       };
 
       setHistoryItems(prev => [newHistoryItem, ...prev]);
-
       setIsAnalyzing(false);
       setAnalysisProgress('');
-    }, 2400);
-
-    return true;
+      return true;
+    } catch (err) {
+      // If text extraction or Gemini analysis fails, display clear user-friendly error
+      // Do NOT set fake/sample results!
+      setIsAnalyzing(false);
+      setAnalysisProgress('');
+      setUploadError(err.message || 'Failed to analyze document with Gemini. Please try again.');
+      return false;
+    }
   };
 
   // Action: Trigger document comparison simulation

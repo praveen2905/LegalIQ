@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../context/AppContext';
 import BackButton from '../components/ui/BackButton';
 import { SAMPLE_DOCUMENTS } from '../data/mockLegalData';
+import { askGemini } from '../utils/geminiClient';
 import { 
   FileText, 
   Upload, 
@@ -94,7 +95,7 @@ export default function DocumentAnalyzer() {
   };
 
   // Chat message submission
-  const handleSendMessage = (textToSend) => {
+  const handleSendMessage = async (textToSend) => {
     const query = (textToSend || inputQuery).trim();
     if (!query || isTyping || !selectedDoc) return;
 
@@ -110,10 +111,11 @@ export default function DocumentAnalyzer() {
     if (!textToSend) setInputQuery('');
     setIsTyping(true);
 
-    setTimeout(() => {
+    try {
       const lowerQ = query.toLowerCase();
       
-      let match = selectedDoc.aiQuestions.find(q => 
+      // 1. Check if an exact question match exists in pre-grounded questions
+      let match = selectedDoc.aiQuestions?.find(q => 
         lowerQ.includes(q.question.toLowerCase().replace('?', '')) ||
         q.question.toLowerCase().includes(lowerQ)
       );
@@ -123,22 +125,26 @@ export default function DocumentAnalyzer() {
 
       if (match) {
         aiResponseText = match.answer;
-        references = match.references;
-      } else if (lowerQ.includes('notice') || lowerQ.includes('renewal')) {
-        aiResponseText = `Regarding notice and renewal in "${selectedDoc.title}": Section terms specify written notice of non-renewal prior to contract expiration. Failing to provide timely notice results in automatic renewal.`;
-        references = [selectedDoc.clauses[0]?.sectionNumber || 'Section 4.2'];
-      } else if (lowerQ.includes('leave') || lowerQ.includes('terminate') || lowerQ.includes('early')) {
-        aiResponseText = `Early termination conditions: Under ${selectedDoc.clauses.find(c => c.riskCategory === 'Termination')?.sectionNumber || 'Section 16.3'}, early termination requires written advance notice and may trigger liquidated damages.`;
-        references = [selectedDoc.clauses.find(c => c.riskCategory === 'Termination')?.sectionNumber || 'Termination Clause'];
-      } else if (lowerQ.includes('liability') || lowerQ.includes('cap') || lowerQ.includes('indemnity')) {
-        aiResponseText = `Liability terms: ${selectedDoc.clauses.find(c => c.riskCategory === 'Liability')?.plainEnglish || 'Liability terms specify obligations for damages and legal claims.'}`;
-        references = [selectedDoc.clauses.find(c => c.riskCategory === 'Liability')?.sectionNumber || 'Indemnity Section'];
-      } else if (lowerQ.includes('payment') || lowerQ.includes('fee') || lowerQ.includes('rent')) {
-        aiResponseText = `Payment terms: Payments are due on scheduled due dates. ${selectedDoc.financialTerms[0]?.detail || 'See financial section for details.'}`;
-        references = [selectedDoc.financialTerms[0]?.item || 'Payment Terms'];
+        references = match.references || [];
       } else {
-        aiResponseText = `I can currently answer questions based on the available document information. Try asking about the payment terms, termination, liability, confidentiality, or notice period.`;
-        references = [];
+        // 2. Query Gemini with the actual document text
+        const docContext = selectedDoc.fullText || selectedDoc.clauses?.map(c => `${c.sectionNumber || ''} ${c.title || ''}: ${c.text || ''}`).join('\n\n') || selectedDoc.summary;
+
+        const geminiRes = await askGemini({
+          prompt: `DOCUMENT TITLE: "${selectedDoc.title}"\nDOCUMENT TEXT:\n"""\n${docContext}\n"""\n\nUSER QUESTION: "${query}"\n\nCRITICAL INSTRUCTIONS:\n- Answer the question using ONLY the provided document text above.\n- If the information is not explicitly present in the document, reply: "Not specified in the document."\n- Keep exact names, dates, amounts, percentages, notice periods, and citations.\n- Do NOT invent or assume terms not in the document.\n- Keep your answer clear, factual, and concise (1-3 sentences).`,
+          systemInstruction: 'You are a legal document assistant. Answer questions strictly grounded in the document text provided. Do not hallucinate or assume facts not present in the text.'
+        });
+
+        aiResponseText = geminiRes.text.trim();
+        
+        // Find if any clause is cited
+        const matchingClause = selectedDoc.clauses?.find(c => 
+          aiResponseText.toLowerCase().includes(c.title?.toLowerCase() || '___') ||
+          (c.sectionNumber && aiResponseText.includes(c.sectionNumber))
+        );
+        if (matchingClause) {
+          references = [matchingClause.sectionNumber || matchingClause.title];
+        }
       }
 
       const aiMsg = {
@@ -149,8 +155,17 @@ export default function DocumentAnalyzer() {
       };
 
       setChatMessages(prev => [...prev, aiMsg]);
+    } catch (err) {
+      const errMsg = {
+        sender: 'ai',
+        text: `Unable to get answer from Gemini: ${err.message}`,
+        references: [],
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setChatMessages(prev => [...prev, errMsg]);
+    } finally {
       setIsTyping(false);
-    }, 900);
+    }
   };
 
   const filteredClauses = selectedDoc ? selectedDoc.clauses.filter(clause => {
