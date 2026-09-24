@@ -18,6 +18,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { LANDING_DEMO_CLAUSES } from '../data/mockLegalData';
+import Footer from '../components/layout/Footer';
 
 export default function LandingPage() {
   const [activeDemoTab, setActiveDemoTab] = useState(0);
@@ -335,6 +336,7 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <Footer />
     </div>
   );
 }

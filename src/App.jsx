@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import Navbar from './components/layout/Navbar';
-import Footer from './components/layout/Footer';
 import LandingPage from './pages/LandingPage';
 import DocumentAnalyzer from './pages/DocumentAnalyzer';
 import CompareDocuments from './pages/CompareDocuments';
@@ -34,7 +33,6 @@ export default function App() {
               <Route path="/history" element={<HistoryPage />} />
             </Routes>
           </main>
-          <Footer />
         </div>
       </BrowserRouter>
     </AppProvider>

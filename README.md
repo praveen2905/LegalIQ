@@ -1,320 +1,261 @@
 # LexiLaw AI
 
-> **Understand Legal Documents. Simply.**
+GenAI-powered Legal-Tech assistant for understanding, analyzing, and comparing legal documents.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-legal--iq--tau.vercel.app-blue?style=flat-square&logo=vercel)](https://legal-iq-tau.vercel.app/)
-[![Powered by Gemini](https://img.shields.io/badge/AI-Google%20Gemini%202.5%20Flash-orange?style=flat-square&logo=google)](https://aistudio.google.com/)
-[![Built with React](https://img.shields.io/badge/Frontend-React%20%2B%20Vite-61DAFB?style=flat-square&logo=react)](https://react.dev/)
+**Understand Legal Documents. Simply.**
 
----
+[![React](https://img.shields.io/badge/React-19-blue?style=flat-square&logo=react)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-8-purple?style=flat-square&logo=vite)](https://vite.dev/)
+[![JavaScript](https://img.shields.io/badge/JavaScript-ESM-yellow?style=flat-square&logo=javascript)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![Gemini](https://img.shields.io/badge/Gemini-2.5%20Flash-orange?style=flat-square&logo=google)](https://aistudio.google.com/)
+[![Vercel](https://img.shields.io/badge/Deployed-Vercel-black?style=flat-square&logo=vercel)](https://vercel.com/)
 
-## 1. Project Overview
-
-### The Problem
-Legal documents—such as employment contracts, non-disclosure agreements (NDAs), commercial leases, and software terms of service—are notorious for dense, opaque language, hidden liability clauses, and confusing jargon. For everyday individuals, startup founders, freelancers, and small business owners without a dedicated legal team, thoroughly understanding these agreements is intimidating, time-consuming, and prone to costly oversights.
-
-### The Solution
-**LexiLaw AI** is a GenAI-powered Legal-Tech application designed to bridge the gap between complex contract legalese and plain-English comprehension. By uploading standard agreements (PDF or DOCX), users receive instant, strictly grounded breakdowns: plain-language executive summaries, categorized clause-by-clause risk assessments, critical deadlines, financial commitments, and an interactive "Ask Your Document" Q&A assistant.
+**[Live Demo](https://legal-iq-tau.vercel.app/)** • **[GitHub Repository](https://github.com/praveen2905/LegalIQ)**
 
 ---
 
-## 2. Challenge Alignment: AI for Legal Assistance & Access
+## Overview
 
-LexiLaw AI directly addresses the **AI for Legal Assistance & Access** challenge track by democratizing contract comprehension:
+LexiLaw AI is an AI-assisted legal document analysis application designed to make contracts and agreements easier for non-lawyers to understand. Reviewing legal agreements—such as employment contracts, non-disclosure agreements (NDAs), and commercial leases—often presents significant hurdles due to dense legalese, confusing clauses, and obscured obligations.
 
-- **Demystifying Complex Contracts:** Translates convoluted legal provisions into actionable, clear plain-English summaries so non-lawyers can make informed decisions.
-- **Strict Document Grounding:** Restricts AI extraction exclusively to the uploaded document text to prevent hallucinations of terms, dates, or obligations that do not exist.
-- **Risk Identification & Transparency:** Highlights high-, medium-, and low-risk terms (e.g., uncapped indemnification, automatic renewals, restrictive covenants) alongside practical recommendations.
-- **Contract Version Comparison:** Provides a dedicated side-by-side comparison tool to spot differences, additions, and removals between document drafts.
-- **Accessibility for All:** Built with a minimal-friction, responsive interface with pre-loaded sample agreements for users who wish to explore legal analysis immediately.
+Built for the **AI for Legal Assistance & Access** challenge, LexiLaw AI allows users to upload standard PDF and DOCX files to receive plain-language summaries, clause-by-clause risk assessments, critical deadlines, financial commitments, and interactive document Q&A. The application is an informational tool to aid document comprehension and does not provide legal advice or replace qualified legal counsel.
 
 ---
 
-## 3. Live Demo
+## Problem
 
-Experience the live application deployed on Vercel:
-
-🔗 **[https://legal-iq-tau.vercel.app/](https://legal-iq-tau.vercel.app/)**
-
----
-
-## 4. Core Features
-
-| Feature | Description |
-|---|---|
-| **Document Analyzer** | Core workspace providing multi-tab analysis of legal agreements. |
-| **PDF & DOCX Upload** | Client-side text extraction for PDF and DOCX files up to 10 MB. |
-| **Google Gemini Integration** | Server-side contract analysis powered by Google Gemini 2.5 Flash. |
-| **Executive Summary** | Objective, high-level summary of the contract's scope, parties, and primary intent. |
-| **Clause-by-Clause Analysis** | Granular inspection of key clauses, quoting original text with section references. |
-| **Risk Detection & Scoring** | Quantitative risk score (0–100) and categorized breakdown (High, Medium, Low risk). |
-| **Critical Dates & Deadlines** | Extraction of effective dates, expiration terms, renewal notices, and deadlines. |
-| **Financial Commitments** | Extraction of monetary amounts, compensation, escalation rates, and penalties. |
-| **Obligations & Rights** | Distinct ledgers separating affirmative duties from user protections and rights. |
-| **Plain-English Translations** | Simplified explanations accompanying every flagged clause for layperson understanding. |
-| **Ask Your Document** | Interactive chat assistant answering natural-language queries grounded in the contract text. |
-| **Document Comparison** | Side-by-side analyzer comparing two contract drafts to identify modified terms and risk shifts. |
-| **Analysis History** | Local audit ledger documenting previously analyzed files, risk scores, and timestamps. |
-| **Pre-Loaded Sample Documents** | Ready-to-analyze commercial lease, NDA, and employment agreements for instant evaluation. |
-| **Responsive Design** | Optimized layouts across desktop, tablet, and mobile screens. |
-| **State Handling** | Clear loading indicators, progress messages, empty states, and validation alerts. |
+- **Dense Language:** Legal contracts are written in specialized jargon that is difficult for non-lawyers to interpret accurately.
+- **Buried Terms:** Critical obligations, restrictive covenants, automatic renewals, and liability caps are often obscured across dozens of clauses.
+- **Access & Cost Barriers:** Reviewing every routine contract with an attorney is cost-prohibitive for individuals, freelancers, and small businesses seeking an initial understanding.
 
 ---
 
-## 5. How It Works
+## Solution
 
-### Architectural Flow
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                      User Browser                       │
-│  React (Vite) Frontend • Drag & Drop PDF / DOCX Upload  │
-└────────────────────────────┬────────────────────────────┘
-                             │ Client-side text extraction
-                             ▼ (pdfjs-dist / mammoth)
-┌─────────────────────────────────────────────────────────┐
-│                Extracted Raw Text Payload                │
-└────────────────────────────┬────────────────────────────┘
-                             │ POST /api/gemini
-                             │ (GEMINI_API_KEY kept server-side)
-                             ▼
-┌─────────────────────────────────────────────────────────┐
-│              Server-Side API (Vercel Serverless)        │
-│          api/gemini.js  •  Node.js Runtime              │
-└────────────────────────────┬────────────────────────────┘
-                             │ @google/genai SDK
-                             │ Model: gemini-2.5-flash
-                             ▼
-┌─────────────────────────────────────────────────────────┐
-│                    Google Gemini API                    │
-│   Strict Grounding Prompt • Structured JSON Output      │
-└────────────────────────────┬────────────────────────────┘
-                             │ Validated JSON Response
-                             ▼
-┌─────────────────────────────────────────────────────────┐
-│                 Document Analyzer UI                    │
-│   Executive Summary • Clause Risks • Dates • Chat Q&A   │
-└─────────────────────────────────────────────────────────┘
-```
-
-1. **Upload & Extract:** The user selects or drags a document. The browser uses `pdfjs-dist` or `mammoth` to extract the text content locally.
-2. **Secure Proxy Dispatch:** The frontend sends the text payload to `/api/gemini`. The frontend code never touches or possesses the `GEMINI_API_KEY`.
-3. **Grounded AI Analysis:** The serverless function invokes the official `@google/genai` SDK using `gemini-2.5-flash` with strict document-grounding instructions.
-4. **Structured Mapping:** Gemini returns a structured JSON payload containing the summary, obligations, rights, dates, financials, clauses, and risk ratings.
-5. **Interactive Exploration:** The UI displays the categorized analysis, highlights corresponding clauses in the reader view, and allows interactive Q&A.
+LexiLaw AI provides a straightforward workflow to review documents:
+- **Upload Contracts:** Upload PDF or DOCX files directly in the browser, or choose from pre-loaded sample agreements.
+- **Client-Side Text Extraction:** Extracts document text locally in the browser using `pdfjs-dist` and `mammoth`.
+- **Secure Backend Relay:** Extracted text is sent to a serverless backend (`/api/gemini`), keeping API keys off the client.
+- **Document-Grounded Analysis:** Google Gemini analyzes clauses, risks, dates, and obligations based strictly on the provided text.
+- **Structured Interface:** Results are presented in an organized layout featuring risk ratings (High, Medium, Low), plain-English explanations, and practical tips.
+- **Ask Your Document:** An interactive chat drawer allows users to ask specific questions directly grounded in the active document text.
+- **Document Comparison:** A side-by-side comparison interface allows users to review differences between agreements (currently demonstrated using curated comparison data).
 
 ---
 
-## 6. AI & Gemini Integration
+## Key Features
 
-- **Model:** `gemini-2.5-flash` via the official `@google/genai` JavaScript SDK.
-- **Serverless API Bridge:** Calls originate from [api/gemini.js](api/gemini.js) on Vercel Serverless, ensuring `GEMINI_API_KEY` is never exposed to the client.
-- **Strict Grounding Protocol:** The system instruction enforces that the model must:
-  - Rely exclusively on facts present in the uploaded document.
-  - Never invent clauses, dates, amounts, obligations, rights, or notice periods.
-  - Return `"Not specified in the document."` for any absent term.
-  - Preserve exact names, dates, currencies, notice periods, and jurisdictions.
-- **Structured JSON Mode:** Enforces `responseMimeType: 'application/json'` to guarantee consistent schema parsing without conversational boilerplate.
-
----
-
-## 7. Tech Stack
-
-| Component | Technology | Description |
+| Feature | Description | Implementation Status |
 |---|---|---|
-| **Frontend Framework** | React 19 | UI rendering with functional components and hooks |
-| **Build Tool** | Vite 8 | Fast build tooling and local development server |
-| **Routing** | React Router 7 | Client-side routing between Analyzer, Compare, History |
-| **Styling** | Tailwind CSS 4 | Utility-first responsive styling |
-| **Icons** | Lucide React | Modern iconography |
-| **Document Parsing** | pdfjs-dist & mammoth | Client-side PDF and DOCX text extraction |
-| **GenAI SDK** | @google/genai | Official Google GenAI JavaScript SDK |
-| **AI Model** | Gemini 2.5 Flash | Fast, grounded legal analysis and document Q&A |
-| **Deployment** | Vercel | Serverless hosting and backend function execution |
-| **Version Control** | Git & GitHub | Source code repository and tracking |
+| **PDF & DOCX Upload** | Client-side text and page extraction for `.pdf` and `.docx` files up to 10 MB. | Fully Implemented |
+| **Gemini-Powered Analysis** | Server-side contract breakdown using Google Gemini 2.5 Flash via `@google/genai`. | Fully Implemented |
+| **Executive Summary** | Objective overview of contract type, identified parties, effective date, and scope. | Fully Implemented |
+| **Clause Risk Analysis** | Granular inspection of key clauses categorized by risk level with plain-language explanations. | Fully Implemented |
+| **Dates, Deadlines & Financials** | Extraction of effective dates, renewal windows, fee structures, and financial terms. | Fully Implemented |
+| **Obligations & Rights** | Distinct lists separating affirmative duties from protected user rights. | Fully Implemented |
+| **Ask Your Document** | Grounded Q&A chat drawer that queries Gemini with the active document text. | Fully Implemented |
+| **Document Comparison** | Side-by-side interface for comparing clauses, additions, and risk shifts between contracts. | UI & Sample Data |
+| **Analysis History** | Session audit log allowing users to search, filter by risk level or type, and reopen files. | Fully Implemented |
+| **Sample Agreements** | Pre-loaded NDA, Employment, and Lease agreements for instant evaluation. | Fully Implemented |
+| **Responsive UI** | Clean, accessible design with clear loading states, progress messages, and error alerts. | Fully Implemented |
 
 ---
 
-## 8. Project Structure
+## How It Works
+
+```
+User
+  ↓
+React + Vite Frontend  ──►  Client-Side Text Extraction (pdfjs-dist / mammoth)
+  ↓
+Vercel Serverless API (/api/gemini)  ──►  Google Gemini API (gemini-2.5-flash)
+  ↓
+Structured JSON Analysis  ──►  LexiLaw AI Interactive Workspace
+```
+
+1. **Document Input:** The user uploads a PDF or DOCX file (or selects a sample agreement).
+2. **Text Extraction:** The browser extracts the text content locally using `pdfjs-dist` (PDF) or `mammoth` (DOCX).
+3. **Serverless Dispatch:** The text is sent via POST to `/api/gemini`, keeping the Gemini API key protected on the server.
+4. **Grounded AI Processing:** The serverless handler uses the `@google/genai` SDK with `gemini-2.5-flash` and strict grounding instructions.
+5. **Structured Presentation:** The model returns structured JSON rendered across executive summaries, clause risks, deadlines, and interactive chat.
+
+---
+
+## AI Integration
+
+- **Google Gemini API:** Powered by `gemini-2.5-flash` via the official `@google/genai` SDK.
+- **Server-Side API Integration:** All API calls originate exclusively from `/api/gemini` (Vercel Serverless Function).
+- **Environment Security:** `GEMINI_API_KEY` is stored as an environment variable and is never exposed to client-side code.
+- **Document-Grounded Prompting:** The application instructs Gemini to base analysis strictly on the supplied document text and to state `"Not specified in the document."` when terms are absent, rather than inventing missing details.
+
+---
+
+## Tech Stack
+
+| Technology | Purpose |
+|---|---|
+| **React 19 & React Router 7** | Frontend component framework and client-side routing |
+| **Vite 8** | Development server and production bundler |
+| **JavaScript (ESM)** | Application logic and utilities |
+| **Tailwind CSS 4 & Lucide React** | Responsive styling, design system, and iconography |
+| **pdfjs-dist & mammoth** | Client-side PDF and DOCX text extraction |
+| **@google/genai** | Official Google GenAI SDK |
+| **Vercel** | Serverless function execution and production hosting |
+| **Git & GitHub** | Version control and source code repository |
+
+---
+
+## Project Structure
 
 ```
 LegalIQ/
 ├── api/
-│   ├── gemini.js            # Vercel serverless function: POST /api/gemini
-│   └── gemini-ping.js       # Connectivity health check: GET /api/gemini-ping
-├── public/
-│   ├── favicon.svg          # Application favicon
-│   └── icons.svg            # SVG symbols
+│   ├── gemini.js            # Serverless function handling Gemini API requests
+│   └── gemini-ping.js       # Health-check endpoint for API availability
+├── public/                  # Favicon and static symbols
 ├── src/
-│   ├── assets/              # Static media assets
-│   ├── components/
-│   │   ├── layout/          # Navbar, Footer
-│   │   └── ui/              # Reusable UI controls (BackButton, etc.)
-│   ├── context/
-│   │   └── AppContext.jsx   # Global application state and upload actions
-│   ├── data/
-│   │   └── mockLegalData.js # Baseline demo contracts (Lease, NDA, SaaS)
-│   ├── pages/
-│   │   ├── DocumentAnalyzer.jsx # Core analyzer workspace & Q&A drawer
-│   │   ├── CompareDocuments.jsx # Side-by-side contract comparison
-│   │   ├── HistoryPage.jsx      # Audit history ledger
-│   │   └── LandingPage.jsx      # Marketing homepage & feature overview
-│   ├── utils/
-│   │   ├── documentExtractor.js # PDF & DOCX text extraction engine
-│   │   ├── geminiAnalyzer.js    # Gemini document grounding & schema mapping
-│   │   ├── geminiClient.js      # Client-side API proxy helper
-│   │   └── legalAnalyzer.js     # Legal parsing helpers
-│   ├── App.css
-│   ├── App.jsx              # Main routes and application shell
-│   ├── index.css            # Tailwind CSS root imports
+│   ├── components/          # Navbar, Footer, and UI controls (BackButton)
+│   ├── context/AppContext.jsx # Global state & upload pipeline
+│   ├── data/mockLegalData.js # Sample contracts & comparison presets
+│   ├── pages/               # LandingPage, DocumentAnalyzer, CompareDocuments, HistoryPage
+│   ├── utils/               # PDF/DOCX extractors, Gemini client, grounding prompts
+│   ├── App.jsx              # Main router and layout shell
 │   └── main.jsx             # React DOM entry point
 ├── .env.example             # Safe environment variable template
-├── .gitignore               # Git exclusion rules (.env.local, node_modules, etc.)
-├── index.html               # HTML5 application template
-├── package.json             # Project dependencies and npm scripts
-├── package-lock.json        # Deterministic dependency lockfile
-└── vite.config.js           # Vite configuration with local API dev middleware
+├── .gitignore               # Excludes .env.local, node_modules, build outputs
+├── package.json             # Dependencies and scripts
+└── vite.config.js           # Vite config with local API dev middleware
 ```
 
 ---
 
-## 9. Local Development
+## Getting Started
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) (version 18+ recommended; Node 20+ supported)
-- [npm](https://www.npmjs.com/) (bundled with Node.js)
-- A Google Gemini API Key (obtain from [Google AI Studio](https://aistudio.google.com/app/apikey))
+- Node.js (v18+ or v20+) and npm
+- A Google Gemini API Key from [Google AI Studio](https://aistudio.google.com/app/apikey)
 
-### Setup Instructions
+### Installation & Local Run
 
-1. **Clone the repository:**
+1. **Clone repository and install dependencies:**
    ```bash
    git clone https://github.com/praveen2905/LegalIQ.git
    cd LegalIQ
-   ```
-
-2. **Install dependencies:**
-   ```bash
    npm install
    ```
 
-3. **Configure environment variables:**
-   Create a `.env.local` file in the project root:
+2. **Configure environment variables:**
    ```bash
    cp .env.example .env.local
    ```
-   Open `.env.local` and add your Gemini API key:
+   Add your Gemini API key in `.env.local`:
    ```env
    GEMINI_API_KEY=your_gemini_api_key_here
    ```
-   *(Note: `.env.local` is gitignored and will never be committed).*
 
-4. **Start the local development server:**
+3. **Start local development:**
    ```bash
    npm run dev
    ```
-   The application will be accessible at:
-   ```
-   http://localhost:5173
-   ```
-   *The built-in Vite dev middleware automatically executes `api/gemini.js` locally in Node.js, reading `.env.local` server-side.*
+   Access the app at `http://localhost:5173`. (`vite.config.js` executes `api/gemini.js` locally in Node.js, reading `.env.local` server-side during `npm run dev`.)
 
-5. **Build for production:**
+4. **Build for production:**
    ```bash
    npm run build
    ```
 
 ---
 
-## 10. Environment Variables
+## Environment Variables
 
-| Variable | Required | Location | Description |
-|---|:---:|---|---|
-| `GEMINI_API_KEY` | **Yes** | Server Environment (`.env.local` locally / Vercel dashboard in production) | Google Gemini API key used by `/api/gemini` and `/api/gemini-ping` serverless functions. |
+| Variable | Required | Purpose |
+|---|:---:|---|
+| `GEMINI_API_KEY` | Yes | Server-side Gemini API authentication in `/api/gemini` |
 
-> **IMPORTANT:** Never commit `.env.local` or hardcode API keys in frontend code. The client only makes relative requests to `/api/gemini`.
-
----
-
-## 11. Deployment to Vercel
-
-The project is configured for one-click deployment on Vercel:
-
-1. Push your repository to GitHub.
-2. Import the project in the [Vercel Dashboard](https://vercel.com).
-3. In **Project Settings** → **Environment Variables**, add:
-   - **Key:** `GEMINI_API_KEY`
-   - **Value:** `<Your Google AI Studio API Key>`
-   - **Environment:** Production, Preview, Development
-4. Click **Deploy**. Vercel will build the Vite frontend and host `api/` as serverless functions automatically.
+- Never commit `.env.local` to source control (`.gitignore` protects it).
+- Never hardcode the API key in client-side code.
+- `.env.example` contains only the empty variable template.
 
 ---
 
-## 12. Security & Privacy
+## Deployment
 
-- **Server-Side Key Isolation:** `GEMINI_API_KEY` is loaded exclusively inside Node.js serverless functions. It is never included in client JavaScript bundles or build artifacts.
-- **Git Security:** Sensitive environment files (`.env`, `.env.local`, `*.log`) are explicitly blocked by `.gitignore`.
-- **Data Transmission:** When a user uploads a document, extracted text is securely transmitted over HTTPS to `/api/gemini` and evaluated by the Gemini API according to Google's standard enterprise API data processing policies.
-- **Document Grounding:** Prompts restrict analysis strictly to the provided text to prevent factual hallucinations.
+1. Push the repository to GitHub.
+2. Import the project into [Vercel](https://vercel.com).
+3. In **Project Settings** → **Environment Variables**, add `GEMINI_API_KEY` with your Gemini key.
+4. Deploy. Vercel builds the Vite frontend and deploys `api/` as serverless functions.
+
+**Live Deployment:** **[https://legal-iq-tau.vercel.app/](https://legal-iq-tau.vercel.app/)**
 
 ---
 
-## 13. User Flow
+## Security Considerations
+
+- **Server-Side Key Storage:** `GEMINI_API_KEY` is loaded exclusively within serverless functions and never exposed to the client.
+- **Git Exclusions:** `.env.local` and local environment files are ignored via `.gitignore`.
+- **Protected Endpoint:** The frontend communicates with the relative backend endpoint (`/api/gemini`) rather than contacting the Gemini API directly from the client.
+- **HTTPS Enforcement:** Production traffic is encrypted using HTTPS on Vercel.
+
+---
+
+## User Flow
 
 ```
-[ Landing Page ]
-       │
-       ▼
-[ Upload Document / Select Sample ]
-       │
-       ├─► (PDF / DOCX Upload) ──► Text Extraction ──► /api/gemini ──► Grounded Analysis
-       │
-       └─► (Sample Document)   ──► Instant Baseline Preview
-       │
-       ▼
-[ Document Analyzer Workspace ]
-       │
-       ├─► [Executive Summary]: Overview, Parties, Obligations, Rights, Dates, Financials
-       ├─► [Clause Risks]: Categorized Risk Badges, Plain-English Translations, Recommendations
-       ├─► [Ask Your Document]: AI Q&A grounded strictly in the contract text
-       └─► [Export Report]: Copy plain-language summaries and findings
-       │
-       ▼
-[ Compare Documents ] ──► Side-by-side version comparison of clauses and risk shifts
-       │
-       ▼
-[ History Ledger ]    ──► Review timestamps, filenames, and risk summaries
+Landing Page
+  → Upload Document (PDF/DOCX) or Select Sample
+  → Document Analyzer Workspace
+      • Review Executive Summary & Identified Parties
+      • Inspect Clause Risk Breakdown (High / Medium / Low)
+      • Check Important Dates, Deadlines & Notice Periods
+      • Review Financial Terms & Commitments
+      • Ask specific questions via "Ask Your Document" Chat Drawer
+  → Compare Documents (Side-by-side clause & risk difference view)
+  → Review History (Audit session records and re-open analyses)
 ```
 
 ---
 
-## 14. Design Philosophy
+## Design & UX
 
-- **Legal-Tech SaaS Aesthetic:** Clean, neutral slate and blue color palette conveying trust, clarity, and precision.
-- **Progressive Disclosure:** Essential takeaways (risk score, executive summary, parties) are immediately visible; detailed clause texts and redline recommendations are accessible on demand.
-- **Plain-English Priority:** Jargon is translated into everyday language while preserving exact monetary values, deadlines, and section references.
-- **Zero Hallucination Tolerance:** Absence of a clause is explicitly labeled as `"Not specified in the document."` rather than assuming or inventing terms.
+- **Legal-Tech SaaS Interface:** Neutral slate and indigo palette designed for focus and readability.
+- **Responsive Layout:** Optimized for desktop, tablet, and mobile displays.
+- **Plain-Language Presentation:** Clarifies legal provisions while citing original section references.
+- **Clear State Handling:** Responsive loading spinners, analysis progress stages, and explicit error alerts.
+- **Clean Navigation:** Scoped footer on the landing page and uncluttered secondary workspace views.
 
 ---
 
-## 15. Limitations & Legal Disclaimer
+## Limitations & Disclaimer
 
 > **DISCLAIMER:**  
-> **LexiLaw AI is an artificial intelligence-powered software tool designed solely for informational assistance, educational purposes, and document readability. It does NOT provide legal advice, legal opinions, or professional legal representation.**  
+> **LexiLaw AI is an artificial intelligence-powered informational and educational tool designed to help users understand legal documents. It does not provide legal advice, legal opinions, or professional legal representation, and does not create an attorney-client relationship.**  
 >  
-> LexiLaw AI is not a law firm, and use of this software does not create an attorney-client relationship. While LexiLaw AI strives for factual fidelity, automated analyses may contain inaccuracies, omissions, or misinterpretations. You should always consult a licensed attorney or qualified legal professional before signing, modifying, or relying upon any legal contract or agreement.
+> AI-generated analysis may contain errors, inaccuracies, or omissions. Users should verify all important terms, numbers, and deadlines directly against the original contract text and consult a licensed attorney or qualified legal professional before making legal decisions.
 
 ---
 
-## 16. Future Improvements
+## Future Improvements
 
-- **Multi-Document Synthesis:** Cross-referencing master service agreements (MSAs) with accompanying statements of work (SOWs).
-- **Export to Redlined Word/PDF:** Exporting analyzed agreements with highlighted risk comments and suggested clause revisions.
-- **Custom Jurisdiction Rulebooks:** Specialized compliance screening against specific regional regulations (e.g., GDPR, California Consumer Privacy Act, Indian Contract Act).
-- **OCR Support:** Integration with optical character recognition for scanned/image-only legal PDFs.
+- **Optical Character Recognition (OCR):** Support for scanned image-only PDFs.
+- **Dynamic Multi-Document Comparison:** Generating automated AI redline diffs between any two uploaded contracts.
+- **Document Export Formats:** Exporting structured reports to annotated PDF or DOCX formats.
+- **Jurisdiction-Specific Checks:** Contextual rule checks based on specific state or regional legal frameworks.
+- **Multi-Turn Chat Memory:** Extended conversation context for complex, multi-step document investigations.
 
 ---
 
-## 17. License
+## Challenge Alignment
 
-License: Not specified
+### AI for Legal Assistance & Access
+
+LexiLaw AI directly addresses the **AI for Legal Assistance & Access** challenge by:
+- **Demystifying Contract Jargon:** Translating complex legalese into clear, structured summaries and actionable explanations for non-lawyers.
+- **Improving Comprehension:** Breaking contracts into manageable modules—executive summary, risk-rated clauses, deadlines, financial commitments, and rights.
+- **Enhancing Accessibility:** Offering a web-based tool with pre-loaded samples that anyone can evaluate immediately without setup barriers.
+- **Using GenAI Responsibly:** Applying strict document-grounded system instructions to keep outputs tied directly to the text provided.
+
+---
+
+## License
+
+License: Not specified.
